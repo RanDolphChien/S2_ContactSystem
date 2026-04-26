@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S2A 聯絡單管理系統 - 自動暫存增強版</title>
+    <title>聯絡單管理系統</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
@@ -174,6 +174,7 @@
             z-index: 1000;
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
+
     </style>
 </head>
 <body class="pb-20">
@@ -182,7 +183,7 @@
     <div id="auth-screen" style="display:none;"
          class="min-h-screen bg-slate-100 flex items-center justify-center">
       <div class="bg-white rounded-2xl shadow-lg p-10 w-full max-w-sm">
-        <h1 class="text-2xl font-bold text-blue-800 mb-2 text-center">S2A 聯絡單管理系統</h1>
+        <h1 class="text-2xl font-bold text-blue-800 mb-2 text-center">聯絡單管理系統</h1>
         <p class="text-slate-500 text-sm text-center mb-8">請登入以使用本系統</p>
         <label class="block text-sm font-medium text-slate-700 mb-1">電子郵件</label>
         <input id="auth-email" type="email" autocomplete="email"
@@ -216,9 +217,6 @@
         <button type="button" id="editToggle" onclick="toggleEditMode()" class="bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 transition font-bold shadow-sm">
             <span id="btnText">開啟編輯模式</span>
         </button>
-        <button type="button" onclick="clearDraft()" class="bg-white border border-red-200 text-red-600 px-4 py-2 rounded-xl hover:bg-red-50 transition font-bold shadow-sm">
-            清除暫存內容
-        </button>
         <span id="user-email-display" class="text-xs text-slate-500 self-center hidden"></span>
         <button type="button" onclick="handleLogout()"
                 class="bg-white border border-slate-300 text-slate-600 px-4 py-2 rounded-xl hover:bg-slate-50 transition font-bold shadow-sm">
@@ -230,15 +228,10 @@
         <div class="print-container">
             <!-- 左側聯絡單 -->
             <div class="a4-half-page" id="page-left">
-                <div class="page-actions no-print">
-                    <button type="button" class="btn-round btn-add action-clone" title="複製此份內容至右側">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
-                    </button>
-                </div>
 
                 <div class="header-section">
-                    <div class="header-title">S2A 班級聯絡單</div>
-                    <div class="header-date">日期：<span class="editable-field" data-key="p1-date" contenteditable="false">2026/04/16</span></div>
+                    <div class="header-title editable-field" data-key="p1-title" contenteditable="false">S2A 班級聯絡單</div>
+                    <div class="header-date">日期：<span class="editable-field" data-key="p1-date" contenteditable="false">2026/04/25</span></div>
                 </div>
 
                 <div class="section-header">☆ Weekly’s Lesson (本週上課內容)</div>
@@ -269,7 +262,7 @@
                     </div>
                 </div>
 
-                <div class="section-header">🔡 Vocabulary Focus</div>
+                <div class="section-header">🔡 Vocabularies(本週單字)</div>
                 <div class="vocab-grid">
                     <div class="vocab-item editable-field" data-key="p1-v1" contenteditable="false">leaving</div>
                     <div class="vocab-item editable-field" data-key="p1-v2" contenteditable="false">feel</div>
@@ -296,15 +289,10 @@
 
             <!-- 右側聯絡單 -->
             <div class="a4-half-page" id="page-right">
-                <div class="page-actions no-print">
-                    <button type="button" class="btn-round btn-add action-clone" title="複製左側內容至右側">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
-                    </button>
-                </div>
 
                 <div class="header-section">
-                    <div class="header-title">S2A 班級聯絡單</div>
-                    <div class="header-date">日期：<span class="editable-field" data-key="p2-date" contenteditable="false">2026/04/17</span></div>
+                    <div class="header-title editable-field" data-key="p2-title" contenteditable="false">S2A 班級聯絡單</div>
+                    <div class="header-date">日期：<span class="editable-field" data-key="p2-date" contenteditable="false">2026/04/25</span></div>
                 </div>
 
                 <div class="section-header">☆ Weekly’s Lesson (本週上課內容)</div>
@@ -357,6 +345,502 @@
                     <div class="vocab-item editable-field" data-key="p2-v18" contenteditable="false">twelve</div>
                     <div class="vocab-item editable-field" data-key="p2-v19" contenteditable="false">nice</div>
                     <div class="vocab-item editable-field" data-key="p2-v20" contenteditable="false">pretty</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="print-container">
+            <!-- 左側聯絡單 (p3) -->
+            <div class="a4-half-page" id="page-left-2">
+
+                <div class="header-section">
+                    <div class="header-title editable-field" data-key="p3-title" contenteditable="false">S2A 班級聯絡單</div>
+                    <div class="header-date">日期：<span class="editable-field" data-key="p3-date" contenteditable="false">2026/04/21</span></div>
+                </div>
+
+                <div class="section-header">☆ Weekly's Lesson (本週上課內容)</div>
+                <div class="content-box">
+                    <div class="editable-field" data-key="p3-lesson" contenteditable="false">
+                        ☆Compass Reading :Topic 1 p.20-23<br>
+                        ☆Compass Writing :Topic 7 p.84-85<br>
+                        ☆Grammar Zone2: Lesson 2<br>
+                        ☆Step By Step Listening: Unit 10
+                    </div>
+                </div>
+
+                <div class="section-header">▲ Today's Homework (回家功課)</div>
+                <div class="content-box">
+                    <div class="editable-field" data-key="p3-homework" contenteditable="false">
+                        ▲閱讀Compass Reading : p. 20-23<br>
+                        ▲熟記下方單字<br>
+                        ▲作業本- Grammar Review
+                    </div>
+                </div>
+
+                <div class="section-header">★ Communication matters (聯絡事項)</div>
+                <div class="content-box">
+                    <div class="editable-field" data-key="p3-comm" contenteditable="false">
+                        ★本學期有「說故事比賽」，請孩子在家也要練習自己選的故事，五月初將有說故事比賽的班內賽，每個人都要到前方說自己選的故事喲！上週已發給孩子紙本故事，並會利用學校APP把故事及錄音檔給家長。<br><br>
+                        ★本學期有「教學觀摩」，學校之後會在APP的園訊公佈時間，Kim也會再提醒您。<br><br>
+                        ★下週三(3/18)開始有英文有聲故事書借閱，本學期共有五次借閱。
+                    </div>
+                </div>
+
+                <div class="section-header">🔡 Vocabularies(本週單字)</div>
+                <div class="vocab-grid">
+                    <div class="vocab-item editable-field" data-key="p3-v1" contenteditable="false">leaving</div>
+                    <div class="vocab-item editable-field" data-key="p3-v2" contenteditable="false">feel</div>
+                    <div class="vocab-item editable-field" data-key="p3-v3" contenteditable="false">stop</div>
+                    <div class="vocab-item editable-field" data-key="p3-v4" contenteditable="false">hear</div>
+                    <div class="vocab-item editable-field" data-key="p3-v5" contenteditable="false">classroom</div>
+                    <div class="vocab-item editable-field" data-key="p3-v6" contenteditable="false">student</div>
+                    <div class="vocab-item editable-field" data-key="p3-v7" contenteditable="false">crying</div>
+                    <div class="vocab-item editable-field" data-key="p3-v8" contenteditable="false">speak</div>
+                    <div class="vocab-item editable-field" data-key="p3-v9" contenteditable="false">shout</div>
+                    <div class="vocab-item editable-field" data-key="p3-v10" contenteditable="false">many</div>
+                    <div class="vocab-item editable-field" data-key="p3-v11" contenteditable="false">talk</div>
+                    <div class="vocab-item editable-field" data-key="p3-v12" contenteditable="false">Chinese</div>
+                    <div class="vocab-item editable-field" data-key="p3-v13" contenteditable="false">walk</div>
+                    <div class="vocab-item editable-field" data-key="p3-v14" contenteditable="false">eleven</div>
+                    <div class="vocab-item editable-field" data-key="p3-v15" contenteditable="false">wrong</div>
+                    <div class="vocab-item editable-field" data-key="p3-v16" contenteditable="false">beautiful</div>
+                    <div class="vocab-item editable-field" data-key="p3-v17" contenteditable="false">desk</div>
+                    <div class="vocab-item editable-field" data-key="p3-v18" contenteditable="false">twelve</div>
+                    <div class="vocab-item editable-field" data-key="p3-v19" contenteditable="false">nice</div>
+                    <div class="vocab-item editable-field" data-key="p3-v20" contenteditable="false">pretty</div>
+                </div>
+            </div>
+
+            <!-- 右側聯絡單 (p4) -->
+            <div class="a4-half-page" id="page-right-2">
+
+                <div class="header-section">
+                    <div class="header-title editable-field" data-key="p4-title" contenteditable="false">S2A 班級聯絡單</div>
+                    <div class="header-date">日期：<span class="editable-field" data-key="p4-date" contenteditable="false">2026/04/21</span></div>
+                </div>
+
+                <div class="section-header">☆ Weekly's Lesson (本週上課內容)</div>
+                <div class="content-box">
+                    <div class="editable-field" data-key="p4-lesson" contenteditable="false">
+                        ☆Compass Reading :Topic 1 p.20-23<br>
+                        ☆Compass Writing :Topic 7 p.84-85<br>
+                        ☆Grammar Zone2: Lesson 2<br>
+                        ☆Step By Step Listening: Unit 10
+                    </div>
+                </div>
+
+                <div class="section-header">▲ Today's Homework (回家功課)</div>
+                <div class="content-box">
+                    <div class="editable-field" data-key="p4-homework" contenteditable="false">
+                        ▲閱讀Compass Reading : p. 20-23<br>
+                        ▲熟記下方單字<br>
+                        ▲作業本- Grammar Review
+                    </div>
+                </div>
+
+                <div class="section-header">★ Communication matters (聯絡事項)</div>
+                <div class="content-box">
+                    <div class="editable-field" data-key="p4-comm" contenteditable="false">
+                        ★本學期有「說故事比賽」，請孩子在家也要練習自己選的故事，五月初將有說故事比賽的班內賽，每個人都要到前方說自己選的故事喲！上週已發給孩子紙本故事，並會利用學校APP把故事及錄音檔給家長。<br><br>
+                        ★本學期有「教學觀摩」，學校之後會在APP的園訊公佈時間，Kim也會再提醒您。<br><br>
+                        ★下週三(3/18)開始有英文有聲故事書借閱，本學期共有五次借閱。
+                    </div>
+                </div>
+
+                <div class="section-header">🔡 Vocabulary Focus</div>
+                <div class="vocab-grid">
+                    <div class="vocab-item editable-field" data-key="p4-v1" contenteditable="false">leaving</div>
+                    <div class="vocab-item editable-field" data-key="p4-v2" contenteditable="false">feel</div>
+                    <div class="vocab-item editable-field" data-key="p4-v3" contenteditable="false">stop</div>
+                    <div class="vocab-item editable-field" data-key="p4-v4" contenteditable="false">hear</div>
+                    <div class="vocab-item editable-field" data-key="p4-v5" contenteditable="false">classroom</div>
+                    <div class="vocab-item editable-field" data-key="p4-v6" contenteditable="false">student</div>
+                    <div class="vocab-item editable-field" data-key="p4-v7" contenteditable="false">crying</div>
+                    <div class="vocab-item editable-field" data-key="p4-v8" contenteditable="false">speak</div>
+                    <div class="vocab-item editable-field" data-key="p4-v9" contenteditable="false">shout</div>
+                    <div class="vocab-item editable-field" data-key="p4-v10" contenteditable="false">many</div>
+                    <div class="vocab-item editable-field" data-key="p4-v11" contenteditable="false">talk</div>
+                    <div class="vocab-item editable-field" data-key="p4-v12" contenteditable="false">Chinese</div>
+                    <div class="vocab-item editable-field" data-key="p4-v13" contenteditable="false">walk</div>
+                    <div class="vocab-item editable-field" data-key="p4-v14" contenteditable="false">eleven</div>
+                    <div class="vocab-item editable-field" data-key="p4-v15" contenteditable="false">wrong</div>
+                    <div class="vocab-item editable-field" data-key="p4-v16" contenteditable="false">beautiful</div>
+                    <div class="vocab-item editable-field" data-key="p4-v17" contenteditable="false">desk</div>
+                    <div class="vocab-item editable-field" data-key="p4-v18" contenteditable="false">twelve</div>
+                    <div class="vocab-item editable-field" data-key="p4-v19" contenteditable="false">nice</div>
+                    <div class="vocab-item editable-field" data-key="p4-v20" contenteditable="false">pretty</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="print-container">
+            <!-- 左側聯絡單 (p5) -->
+            <div class="a4-half-page" id="page-left-3">
+
+                <div class="header-section">
+                    <div class="header-title editable-field" data-key="p5-title" contenteditable="false">S2A 班級聯絡單</div>
+                    <div class="header-date">日期：<span class="editable-field" data-key="p5-date" contenteditable="false">2026/04/22</span></div>
+                </div>
+
+                <div class="section-header">☆ Weekly's Lesson (本週上課內容)</div>
+                <div class="content-box">
+                    <div class="editable-field" data-key="p5-lesson" contenteditable="false">
+                        ☆Compass Reading :Topic 1 p.20-23<br>
+                        ☆Compass Writing :Topic 7 p.84-85<br>
+                        ☆Grammar Zone2: Lesson 2<br>
+                        ☆Step By Step Listening: Unit 10
+                    </div>
+                </div>
+
+                <div class="section-header">▲ Today's Homework (回家功課)</div>
+                <div class="content-box">
+                    <div class="editable-field" data-key="p5-homework" contenteditable="false">
+                        ▲閱讀Compass Reading : p. 20-23<br>
+                        ▲熟記下方單字<br>
+                        ▲作業本- Grammar Review
+                    </div>
+                </div>
+
+                <div class="section-header">★ Communication matters (聯絡事項)</div>
+                <div class="content-box">
+                    <div class="editable-field" data-key="p5-comm" contenteditable="false">
+                        ★本學期有「說故事比賽」，請孩子在家也要練習自己選的故事，五月初將有說故事比賽的班內賽，每個人都要到前方說自己選的故事喲！上週已發給孩子紙本故事，並會利用學校APP把故事及錄音檔給家長。<br><br>
+                        ★本學期有「教學觀摩」，學校之後會在APP的園訊公佈時間，Kim也會再提醒您。<br><br>
+                        ★下週三(3/18)開始有英文有聲故事書借閱，本學期共有五次借閱。
+                    </div>
+                </div>
+
+                <div class="section-header">🔡 Vocabularies(本週單字)</div>
+                <div class="vocab-grid">
+                    <div class="vocab-item editable-field" data-key="p5-v1" contenteditable="false">leaving</div>
+                    <div class="vocab-item editable-field" data-key="p5-v2" contenteditable="false">feel</div>
+                    <div class="vocab-item editable-field" data-key="p5-v3" contenteditable="false">stop</div>
+                    <div class="vocab-item editable-field" data-key="p5-v4" contenteditable="false">hear</div>
+                    <div class="vocab-item editable-field" data-key="p5-v5" contenteditable="false">classroom</div>
+                    <div class="vocab-item editable-field" data-key="p5-v6" contenteditable="false">student</div>
+                    <div class="vocab-item editable-field" data-key="p5-v7" contenteditable="false">crying</div>
+                    <div class="vocab-item editable-field" data-key="p5-v8" contenteditable="false">speak</div>
+                    <div class="vocab-item editable-field" data-key="p5-v9" contenteditable="false">shout</div>
+                    <div class="vocab-item editable-field" data-key="p5-v10" contenteditable="false">many</div>
+                    <div class="vocab-item editable-field" data-key="p5-v11" contenteditable="false">talk</div>
+                    <div class="vocab-item editable-field" data-key="p5-v12" contenteditable="false">Chinese</div>
+                    <div class="vocab-item editable-field" data-key="p5-v13" contenteditable="false">walk</div>
+                    <div class="vocab-item editable-field" data-key="p5-v14" contenteditable="false">eleven</div>
+                    <div class="vocab-item editable-field" data-key="p5-v15" contenteditable="false">wrong</div>
+                    <div class="vocab-item editable-field" data-key="p5-v16" contenteditable="false">beautiful</div>
+                    <div class="vocab-item editable-field" data-key="p5-v17" contenteditable="false">desk</div>
+                    <div class="vocab-item editable-field" data-key="p5-v18" contenteditable="false">twelve</div>
+                    <div class="vocab-item editable-field" data-key="p5-v19" contenteditable="false">nice</div>
+                    <div class="vocab-item editable-field" data-key="p5-v20" contenteditable="false">pretty</div>
+                </div>
+            </div>
+
+            <!-- 右側聯絡單 (p6) -->
+            <div class="a4-half-page" id="page-right-3">
+
+                <div class="header-section">
+                    <div class="header-title editable-field" data-key="p6-title" contenteditable="false">S2A 班級聯絡單</div>
+                    <div class="header-date">日期：<span class="editable-field" data-key="p6-date" contenteditable="false">2026/04/22</span></div>
+                </div>
+
+                <div class="section-header">☆ Weekly's Lesson (本週上課內容)</div>
+                <div class="content-box">
+                    <div class="editable-field" data-key="p6-lesson" contenteditable="false">
+                        ☆Compass Reading :Topic 1 p.20-23<br>
+                        ☆Compass Writing :Topic 7 p.84-85<br>
+                        ☆Grammar Zone2: Lesson 2<br>
+                        ☆Step By Step Listening: Unit 10
+                    </div>
+                </div>
+
+                <div class="section-header">▲ Today's Homework (回家功課)</div>
+                <div class="content-box">
+                    <div class="editable-field" data-key="p6-homework" contenteditable="false">
+                        ▲閱讀Compass Reading : p. 20-23<br>
+                        ▲熟記下方單字<br>
+                        ▲作業本- Grammar Review
+                    </div>
+                </div>
+
+                <div class="section-header">★ Communication matters (聯絡事項)</div>
+                <div class="content-box">
+                    <div class="editable-field" data-key="p6-comm" contenteditable="false">
+                        ★本學期有「說故事比賽」，請孩子在家也要練習自己選的故事，五月初將有說故事比賽的班內賽，每個人都要到前方說自己選的故事喲！上週已發給孩子紙本故事，並會利用學校APP把故事及錄音檔給家長。<br><br>
+                        ★本學期有「教學觀摩」，學校之後會在APP的園訊公佈時間，Kim也會再提醒您。<br><br>
+                        ★下週三(3/18)開始有英文有聲故事書借閱，本學期共有五次借閱。
+                    </div>
+                </div>
+
+                <div class="section-header">🔡 Vocabulary Focus</div>
+                <div class="vocab-grid">
+                    <div class="vocab-item editable-field" data-key="p6-v1" contenteditable="false">leaving</div>
+                    <div class="vocab-item editable-field" data-key="p6-v2" contenteditable="false">feel</div>
+                    <div class="vocab-item editable-field" data-key="p6-v3" contenteditable="false">stop</div>
+                    <div class="vocab-item editable-field" data-key="p6-v4" contenteditable="false">hear</div>
+                    <div class="vocab-item editable-field" data-key="p6-v5" contenteditable="false">classroom</div>
+                    <div class="vocab-item editable-field" data-key="p6-v6" contenteditable="false">student</div>
+                    <div class="vocab-item editable-field" data-key="p6-v7" contenteditable="false">crying</div>
+                    <div class="vocab-item editable-field" data-key="p6-v8" contenteditable="false">speak</div>
+                    <div class="vocab-item editable-field" data-key="p6-v9" contenteditable="false">shout</div>
+                    <div class="vocab-item editable-field" data-key="p6-v10" contenteditable="false">many</div>
+                    <div class="vocab-item editable-field" data-key="p6-v11" contenteditable="false">talk</div>
+                    <div class="vocab-item editable-field" data-key="p6-v12" contenteditable="false">Chinese</div>
+                    <div class="vocab-item editable-field" data-key="p6-v13" contenteditable="false">walk</div>
+                    <div class="vocab-item editable-field" data-key="p6-v14" contenteditable="false">eleven</div>
+                    <div class="vocab-item editable-field" data-key="p6-v15" contenteditable="false">wrong</div>
+                    <div class="vocab-item editable-field" data-key="p6-v16" contenteditable="false">beautiful</div>
+                    <div class="vocab-item editable-field" data-key="p6-v17" contenteditable="false">desk</div>
+                    <div class="vocab-item editable-field" data-key="p6-v18" contenteditable="false">twelve</div>
+                    <div class="vocab-item editable-field" data-key="p6-v19" contenteditable="false">nice</div>
+                    <div class="vocab-item editable-field" data-key="p6-v20" contenteditable="false">pretty</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="print-container">
+            <!-- 左側聯絡單 (p7) -->
+            <div class="a4-half-page" id="page-left-4">
+
+                <div class="header-section">
+                    <div class="header-title editable-field" data-key="p7-title" contenteditable="false">S2A 班級聯絡單</div>
+                    <div class="header-date">日期：<span class="editable-field" data-key="p7-date" contenteditable="false">2026/04/23</span></div>
+                </div>
+
+                <div class="section-header">☆ Weekly's Lesson (本週上課內容)</div>
+                <div class="content-box">
+                    <div class="editable-field" data-key="p7-lesson" contenteditable="false">
+                        ☆Compass Reading :Topic 1 p.20-23<br>
+                        ☆Compass Writing :Topic 7 p.84-85<br>
+                        ☆Grammar Zone2: Lesson 2<br>
+                        ☆Step By Step Listening: Unit 10
+                    </div>
+                </div>
+
+                <div class="section-header">▲ Today's Homework (回家功課)</div>
+                <div class="content-box">
+                    <div class="editable-field" data-key="p7-homework" contenteditable="false">
+                        ▲閱讀Compass Reading : p. 20-23<br>
+                        ▲熟記下方單字<br>
+                        ▲作業本- Grammar Review
+                    </div>
+                </div>
+
+                <div class="section-header">★ Communication matters (聯絡事項)</div>
+                <div class="content-box">
+                    <div class="editable-field" data-key="p7-comm" contenteditable="false">
+                        ★本學期有「說故事比賽」，請孩子在家也要練習自己選的故事，五月初將有說故事比賽的班內賽，每個人都要到前方說自己選的故事喲！上週已發給孩子紙本故事，並會利用學校APP把故事及錄音檔給家長。<br><br>
+                        ★本學期有「教學觀摩」，學校之後會在APP的園訊公佈時間，Kim也會再提醒您。<br><br>
+                        ★下週三(3/18)開始有英文有聲故事書借閱，本學期共有五次借閱。
+                    </div>
+                </div>
+
+                <div class="section-header">🔡 Vocabularies(本週單字)</div>
+                <div class="vocab-grid">
+                    <div class="vocab-item editable-field" data-key="p7-v1" contenteditable="false">leaving</div>
+                    <div class="vocab-item editable-field" data-key="p7-v2" contenteditable="false">feel</div>
+                    <div class="vocab-item editable-field" data-key="p7-v3" contenteditable="false">stop</div>
+                    <div class="vocab-item editable-field" data-key="p7-v4" contenteditable="false">hear</div>
+                    <div class="vocab-item editable-field" data-key="p7-v5" contenteditable="false">classroom</div>
+                    <div class="vocab-item editable-field" data-key="p7-v6" contenteditable="false">student</div>
+                    <div class="vocab-item editable-field" data-key="p7-v7" contenteditable="false">crying</div>
+                    <div class="vocab-item editable-field" data-key="p7-v8" contenteditable="false">speak</div>
+                    <div class="vocab-item editable-field" data-key="p7-v9" contenteditable="false">shout</div>
+                    <div class="vocab-item editable-field" data-key="p7-v10" contenteditable="false">many</div>
+                    <div class="vocab-item editable-field" data-key="p7-v11" contenteditable="false">talk</div>
+                    <div class="vocab-item editable-field" data-key="p7-v12" contenteditable="false">Chinese</div>
+                    <div class="vocab-item editable-field" data-key="p7-v13" contenteditable="false">walk</div>
+                    <div class="vocab-item editable-field" data-key="p7-v14" contenteditable="false">eleven</div>
+                    <div class="vocab-item editable-field" data-key="p7-v15" contenteditable="false">wrong</div>
+                    <div class="vocab-item editable-field" data-key="p7-v16" contenteditable="false">beautiful</div>
+                    <div class="vocab-item editable-field" data-key="p7-v17" contenteditable="false">desk</div>
+                    <div class="vocab-item editable-field" data-key="p7-v18" contenteditable="false">twelve</div>
+                    <div class="vocab-item editable-field" data-key="p7-v19" contenteditable="false">nice</div>
+                    <div class="vocab-item editable-field" data-key="p7-v20" contenteditable="false">pretty</div>
+                </div>
+            </div>
+
+            <!-- 右側聯絡單 (p8) -->
+            <div class="a4-half-page" id="page-right-4">
+
+                <div class="header-section">
+                    <div class="header-title editable-field" data-key="p8-title" contenteditable="false">S2A 班級聯絡單</div>
+                    <div class="header-date">日期：<span class="editable-field" data-key="p8-date" contenteditable="false">2026/04/23</span></div>
+                </div>
+
+                <div class="section-header">☆ Weekly's Lesson (本週上課內容)</div>
+                <div class="content-box">
+                    <div class="editable-field" data-key="p8-lesson" contenteditable="false">
+                        ☆Compass Reading :Topic 1 p.20-23<br>
+                        ☆Compass Writing :Topic 7 p.84-85<br>
+                        ☆Grammar Zone2: Lesson 2<br>
+                        ☆Step By Step Listening: Unit 10
+                    </div>
+                </div>
+
+                <div class="section-header">▲ Today's Homework (回家功課)</div>
+                <div class="content-box">
+                    <div class="editable-field" data-key="p8-homework" contenteditable="false">
+                        ▲閱讀Compass Reading : p. 20-23<br>
+                        ▲熟記下方單字<br>
+                        ▲作業本- Grammar Review
+                    </div>
+                </div>
+
+                <div class="section-header">★ Communication matters (聯絡事項)</div>
+                <div class="content-box">
+                    <div class="editable-field" data-key="p8-comm" contenteditable="false">
+                        ★本學期有「說故事比賽」，請孩子在家也要練習自己選的故事，五月初將有說故事比賽的班內賽，每個人都要到前方說自己選的故事喲！上週已發給孩子紙本故事，並會利用學校APP把故事及錄音檔給家長。<br><br>
+                        ★本學期有「教學觀摩」，學校之後會在APP的園訊公佈時間，Kim也會再提醒您。<br><br>
+                        ★下週三(3/18)開始有英文有聲故事書借閱，本學期共有五次借閱。
+                    </div>
+                </div>
+
+                <div class="section-header">🔡 Vocabulary Focus</div>
+                <div class="vocab-grid">
+                    <div class="vocab-item editable-field" data-key="p8-v1" contenteditable="false">leaving</div>
+                    <div class="vocab-item editable-field" data-key="p8-v2" contenteditable="false">feel</div>
+                    <div class="vocab-item editable-field" data-key="p8-v3" contenteditable="false">stop</div>
+                    <div class="vocab-item editable-field" data-key="p8-v4" contenteditable="false">hear</div>
+                    <div class="vocab-item editable-field" data-key="p8-v5" contenteditable="false">classroom</div>
+                    <div class="vocab-item editable-field" data-key="p8-v6" contenteditable="false">student</div>
+                    <div class="vocab-item editable-field" data-key="p8-v7" contenteditable="false">crying</div>
+                    <div class="vocab-item editable-field" data-key="p8-v8" contenteditable="false">speak</div>
+                    <div class="vocab-item editable-field" data-key="p8-v9" contenteditable="false">shout</div>
+                    <div class="vocab-item editable-field" data-key="p8-v10" contenteditable="false">many</div>
+                    <div class="vocab-item editable-field" data-key="p8-v11" contenteditable="false">talk</div>
+                    <div class="vocab-item editable-field" data-key="p8-v12" contenteditable="false">Chinese</div>
+                    <div class="vocab-item editable-field" data-key="p8-v13" contenteditable="false">walk</div>
+                    <div class="vocab-item editable-field" data-key="p8-v14" contenteditable="false">eleven</div>
+                    <div class="vocab-item editable-field" data-key="p8-v15" contenteditable="false">wrong</div>
+                    <div class="vocab-item editable-field" data-key="p8-v16" contenteditable="false">beautiful</div>
+                    <div class="vocab-item editable-field" data-key="p8-v17" contenteditable="false">desk</div>
+                    <div class="vocab-item editable-field" data-key="p8-v18" contenteditable="false">twelve</div>
+                    <div class="vocab-item editable-field" data-key="p8-v19" contenteditable="false">nice</div>
+                    <div class="vocab-item editable-field" data-key="p8-v20" contenteditable="false">pretty</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="print-container">
+            <!-- 左側聯絡單 (p9) -->
+            <div class="a4-half-page" id="page-left-5">
+
+                <div class="header-section">
+                    <div class="header-title editable-field" data-key="p9-title" contenteditable="false">S2A 班級聯絡單</div>
+                    <div class="header-date">日期：<span class="editable-field" data-key="p9-date" contenteditable="false">2026/04/24</span></div>
+                </div>
+
+                <div class="section-header">☆ Weekly's Lesson (本週上課內容)</div>
+                <div class="content-box">
+                    <div class="editable-field" data-key="p9-lesson" contenteditable="false">
+                        ☆Compass Reading :Topic 1 p.20-23<br>
+                        ☆Compass Writing :Topic 7 p.84-85<br>
+                        ☆Grammar Zone2: Lesson 2<br>
+                        ☆Step By Step Listening: Unit 10
+                    </div>
+                </div>
+
+                <div class="section-header">▲ Today's Homework (回家功課)</div>
+                <div class="content-box">
+                    <div class="editable-field" data-key="p9-homework" contenteditable="false">
+                        ▲閱讀Compass Reading : p. 20-23<br>
+                        ▲熟記下方單字<br>
+                        ▲作業本- Grammar Review
+                    </div>
+                </div>
+
+                <div class="section-header">★ Communication matters (聯絡事項)</div>
+                <div class="content-box">
+                    <div class="editable-field" data-key="p9-comm" contenteditable="false">
+                        ★本學期有「說故事比賽」，請孩子在家也要練習自己選的故事，五月初將有說故事比賽的班內賽，每個人都要到前方說自己選的故事喲！上週已發給孩子紙本故事，並會利用學校APP把故事及錄音檔給家長。<br><br>
+                        ★本學期有「教學觀摩」，學校之後會在APP的園訊公佈時間，Kim也會再提醒您。<br><br>
+                        ★下週三(3/18)開始有英文有聲故事書借閱，本學期共有五次借閱。
+                    </div>
+                </div>
+
+                <div class="section-header">🔡 Vocabularies(本週單字)</div>
+                <div class="vocab-grid">
+                    <div class="vocab-item editable-field" data-key="p9-v1" contenteditable="false">leaving</div>
+                    <div class="vocab-item editable-field" data-key="p9-v2" contenteditable="false">feel</div>
+                    <div class="vocab-item editable-field" data-key="p9-v3" contenteditable="false">stop</div>
+                    <div class="vocab-item editable-field" data-key="p9-v4" contenteditable="false">hear</div>
+                    <div class="vocab-item editable-field" data-key="p9-v5" contenteditable="false">classroom</div>
+                    <div class="vocab-item editable-field" data-key="p9-v6" contenteditable="false">student</div>
+                    <div class="vocab-item editable-field" data-key="p9-v7" contenteditable="false">crying</div>
+                    <div class="vocab-item editable-field" data-key="p9-v8" contenteditable="false">speak</div>
+                    <div class="vocab-item editable-field" data-key="p9-v9" contenteditable="false">shout</div>
+                    <div class="vocab-item editable-field" data-key="p9-v10" contenteditable="false">many</div>
+                    <div class="vocab-item editable-field" data-key="p9-v11" contenteditable="false">talk</div>
+                    <div class="vocab-item editable-field" data-key="p9-v12" contenteditable="false">Chinese</div>
+                    <div class="vocab-item editable-field" data-key="p9-v13" contenteditable="false">walk</div>
+                    <div class="vocab-item editable-field" data-key="p9-v14" contenteditable="false">eleven</div>
+                    <div class="vocab-item editable-field" data-key="p9-v15" contenteditable="false">wrong</div>
+                    <div class="vocab-item editable-field" data-key="p9-v16" contenteditable="false">beautiful</div>
+                    <div class="vocab-item editable-field" data-key="p9-v17" contenteditable="false">desk</div>
+                    <div class="vocab-item editable-field" data-key="p9-v18" contenteditable="false">twelve</div>
+                    <div class="vocab-item editable-field" data-key="p9-v19" contenteditable="false">nice</div>
+                    <div class="vocab-item editable-field" data-key="p9-v20" contenteditable="false">pretty</div>
+                </div>
+            </div>
+
+            <!-- 右側聯絡單 (p10) -->
+            <div class="a4-half-page" id="page-right-5">
+
+                <div class="header-section">
+                    <div class="header-title editable-field" data-key="p10-title" contenteditable="false">S2A 班級聯絡單</div>
+                    <div class="header-date">日期：<span class="editable-field" data-key="p10-date" contenteditable="false">2026/04/24</span></div>
+                </div>
+
+                <div class="section-header">☆ Weekly's Lesson (本週上課內容)</div>
+                <div class="content-box">
+                    <div class="editable-field" data-key="p10-lesson" contenteditable="false">
+                        ☆Compass Reading :Topic 1 p.20-23<br>
+                        ☆Compass Writing :Topic 7 p.84-85<br>
+                        ☆Grammar Zone2: Lesson 2<br>
+                        ☆Step By Step Listening: Unit 10
+                    </div>
+                </div>
+
+                <div class="section-header">▲ Today's Homework (回家功課)</div>
+                <div class="content-box">
+                    <div class="editable-field" data-key="p10-homework" contenteditable="false">
+                        ▲閱讀Compass Reading : p. 20-23<br>
+                        ▲熟記下方單字<br>
+                        ▲作業本- Grammar Review
+                    </div>
+                </div>
+
+                <div class="section-header">★ Communication matters (聯絡事項)</div>
+                <div class="content-box">
+                    <div class="editable-field" data-key="p10-comm" contenteditable="false">
+                        ★本學期有「說故事比賽」，請孩子在家也要練習自己選的故事，五月初將有說故事比賽的班內賽，每個人都要到前方說自己選的故事喲！上週已發給孩子紙本故事，並會利用學校APP把故事及錄音檔給家長。<br><br>
+                        ★本學期有「教學觀摩」，學校之後會在APP的園訊公佈時間，Kim也會再提醒您。<br><br>
+                        ★下週三(3/18)開始有英文有聲故事書借閱，本學期共有五次借閱。
+                    </div>
+                </div>
+
+                <div class="section-header">🔡 Vocabulary Focus</div>
+                <div class="vocab-grid">
+                    <div class="vocab-item editable-field" data-key="p10-v1" contenteditable="false">leaving</div>
+                    <div class="vocab-item editable-field" data-key="p10-v2" contenteditable="false">feel</div>
+                    <div class="vocab-item editable-field" data-key="p10-v3" contenteditable="false">stop</div>
+                    <div class="vocab-item editable-field" data-key="p10-v4" contenteditable="false">hear</div>
+                    <div class="vocab-item editable-field" data-key="p10-v5" contenteditable="false">classroom</div>
+                    <div class="vocab-item editable-field" data-key="p10-v6" contenteditable="false">student</div>
+                    <div class="vocab-item editable-field" data-key="p10-v7" contenteditable="false">crying</div>
+                    <div class="vocab-item editable-field" data-key="p10-v8" contenteditable="false">speak</div>
+                    <div class="vocab-item editable-field" data-key="p10-v9" contenteditable="false">shout</div>
+                    <div class="vocab-item editable-field" data-key="p10-v10" contenteditable="false">many</div>
+                    <div class="vocab-item editable-field" data-key="p10-v11" contenteditable="false">talk</div>
+                    <div class="vocab-item editable-field" data-key="p10-v12" contenteditable="false">Chinese</div>
+                    <div class="vocab-item editable-field" data-key="p10-v13" contenteditable="false">walk</div>
+                    <div class="vocab-item editable-field" data-key="p10-v14" contenteditable="false">eleven</div>
+                    <div class="vocab-item editable-field" data-key="p10-v15" contenteditable="false">wrong</div>
+                    <div class="vocab-item editable-field" data-key="p10-v16" contenteditable="false">beautiful</div>
+                    <div class="vocab-item editable-field" data-key="p10-v17" contenteditable="false">desk</div>
+                    <div class="vocab-item editable-field" data-key="p10-v18" contenteditable="false">twelve</div>
+                    <div class="vocab-item editable-field" data-key="p10-v19" contenteditable="false">nice</div>
+                    <div class="vocab-item editable-field" data-key="p10-v20" contenteditable="false">pretty</div>
                 </div>
             </div>
         </div>
@@ -443,6 +927,7 @@
             const key = field.getAttribute('data-key');
             if (key && data[key] !== undefined) field.innerHTML = data[key];
           });
+          syncOddToEven();
         }
 
         function saveDraft() {
@@ -476,28 +961,22 @@
           }
         }
 
-        async function clearDraft() {
-          if (!confirm('確定要清除所有暫存編輯內容並重置嗎？此動作無法復原。')) return;
-          localStorage.removeItem(STORAGE_KEY);
-          if (currentSession) {
-            await db.from('contact_drafts').upsert(
-              { user_id: currentSession.user.id, draft_data: {} },
-              { onConflict: 'user_id' }
-            );
-          }
-          location.reload();
-        }
 
         function toggleEditMode() {
           isEditMode = !isEditMode;
           const btn = document.getElementById('editToggle');
           const btnText = document.getElementById('btnText');
           const fields = document.querySelectorAll('.editable-field');
+          const evenPrefixes = ['p2-', 'p4-', 'p6-', 'p8-', 'p10-'];
           if (isEditMode) {
             btn.classList.replace('bg-blue-600', 'bg-emerald-600');
             btnText.innerText = '完成編輯';
             document.body.classList.add('edit-mode');
-            fields.forEach(f => f.setAttribute('contenteditable', 'true'));
+            fields.forEach(f => {
+              const key = f.getAttribute('data-key');
+              const isEven = evenPrefixes.some(prefix => key && key.startsWith(prefix));
+              if (key && !isEven) f.setAttribute('contenteditable', 'true');
+            });
           } else {
             btn.classList.replace('bg-emerald-600', 'bg-blue-600');
             btnText.innerText = '開啟編輯模式';
@@ -507,21 +986,6 @@
           }
         }
 
-        document.addEventListener('click', function(e) {
-          if (e.target.closest('.action-clone')) {
-            const leftPage = document.getElementById('page-left');
-            const rightPage = document.getElementById('page-right');
-            if (leftPage && rightPage) {
-              leftPage.querySelectorAll('.editable-field').forEach(lf => {
-                const rKey = lf.getAttribute('data-key').replace('p1-', 'p2-');
-                const tf = rightPage.querySelector(`[data-key="${rKey}"]`);
-                if (tf) tf.innerHTML = lf.innerHTML;
-              });
-              saveDraft();
-              showStatus('已同步內容至右側並儲存');
-            }
-          }
-        });
 
         function showStatus(msg) {
           const el = document.getElementById('statusMsg');
@@ -535,9 +999,24 @@
           window.print();
         }
 
+        function syncOddToEven() {
+          [1, 3, 5, 7, 9].forEach(n => {
+            document.querySelectorAll(`[data-key^="p${n}-"]`).forEach(field => {
+              const key = field.getAttribute('data-key');
+              const evenKey = key.replace(`p${n}-`, `p${n+1}-`);
+              const evenField = document.querySelector(`[data-key="${evenKey}"]`);
+              if (evenField) evenField.innerHTML = field.innerHTML;
+            });
+          });
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
           document.querySelectorAll('.editable-field').forEach(field => {
             field.addEventListener('blur', saveDraft);
+            const container = field.closest('[id^="page-left"]');
+            if (container) {
+              field.addEventListener('input', syncOddToEven);
+            }
           });
         });
     </script>
