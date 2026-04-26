@@ -1009,11 +1009,24 @@
           localStorage.removeItem(STORAGE_KEY);
 
           if (currentSession) {
-            const { error } = await db.from('user_sessions').delete().eq('user_id', currentSession.user.id);
-            if (error) console.error('刪除登入記錄失敗:', error);
+            const { error: deleteError } = await db.from('user_sessions')
+              .delete()
+              .eq('user_id', currentSession.user.id);
+
+            if (deleteError) {
+              console.error('刪除登入記錄失敗:', deleteError);
+              showStatus('登出失敗：無法清除登入記錄');
+              return;
+            }
           }
 
-          await db.auth.signOut();
+          const { error: signOutError } = await db.auth.signOut();
+          if (signOutError) {
+            console.error('登出失敗:', signOutError);
+            showStatus('登出失敗');
+          } else {
+            showStatus('已登出');
+          }
         }
 
         async function handleForgotPassword() {
