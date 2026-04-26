@@ -297,7 +297,10 @@
                     </div>
                 </div>
 
-                <div class="section-header">🔡 Vocabularies(本週單字)</div>
+                <div class="section-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>🔡 Vocabularies(本週單字)</span>
+                    <button type="button" class="no-print" onclick="copyVocabToAll()" style="background-color: #10b981; color: white; font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; border: none; cursor: pointer; font-weight: 600; margin: 0;">複製到全部</button>
+                </div>
                 <div class="vocab-grid">
                     <div class="vocab-item editable-field" data-key="p1-v1" contenteditable="false">leaving</div>
                     <div class="vocab-item editable-field" data-key="p1-v2" contenteditable="false">feel</div>
@@ -1196,6 +1199,28 @@
               if (evenField) evenField.innerHTML = field.innerHTML;
             });
           });
+        }
+
+        function copyVocabToAll() {
+          const vocabItems = [];
+          for (let i = 1; i <= 20; i++) {
+            const field = document.querySelector(`[data-key="p1-v${i}"]`);
+            if (field) {
+              vocabItems.push(field.innerHTML);
+            }
+          }
+
+          for (let page = 2; page <= 10; page++) {
+            for (let i = 1; i <= 20; i++) {
+              const field = document.querySelector(`[data-key="p${page}-v${i}"]`);
+              if (field && vocabItems[i - 1]) {
+                field.innerHTML = vocabItems[i - 1];
+              }
+            }
+          }
+
+          saveDraft();
+          showStatus('單字已複製到全部頁面');
         }
 
         window.addEventListener('DOMContentLoaded', () => {
