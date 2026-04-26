@@ -1089,11 +1089,13 @@
           const btnText = document.getElementById('btnText');
           const addPageBtn = document.getElementById('addPageBtn');
           const fields = document.querySelectorAll('.editable-field');
+          const rightPages = document.querySelectorAll('[id^="page-right"]');
           if (isEditMode) {
             btn.classList.replace('bg-blue-600', 'bg-emerald-600');
             btnText.innerText = '完成編輯';
             addPageBtn.style.display = '';
             document.body.classList.add('edit-mode');
+            rightPages.forEach(page => page.style.display = 'none');
             fields.forEach(f => {
               const key = f.getAttribute('data-key');
               if (key) {
@@ -1109,6 +1111,7 @@
             btnText.innerText = '開啟編輯模式';
             addPageBtn.style.display = 'none';
             document.body.classList.remove('edit-mode');
+            rightPages.forEach(page => page.style.display = '');
             fields.forEach(f => f.setAttribute('contenteditable', 'false'));
             saveDraft();
           }
