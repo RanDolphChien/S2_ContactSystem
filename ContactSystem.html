@@ -147,6 +147,16 @@
 
         .edit-mode .page-actions { display: flex; }
 
+        .container-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: none;
+            z-index: 50;
+        }
+
+        .edit-mode .container-actions { display: block; }
+
         .btn-round {
             width: 32px;
             height: 32px;
@@ -160,6 +170,22 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
         .btn-add { background-color: #10b981; }
+
+        .btn-remove {
+            width: 36px;
+            height: 36px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            border: none;
+            background-color: #ef4444;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: background-color 0.2s;
+        }
+        .btn-remove:hover { background-color: #dc2626; }
 
         #statusMsg {
             position: fixed;
@@ -217,6 +243,10 @@
         <button type="button" id="editToggle" onclick="toggleEditMode()" class="bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 transition font-bold shadow-sm">
             <span id="btnText">開啟編輯模式</span>
         </button>
+        <button type="button" id="addPageBtn" onclick="addPage()" class="bg-green-600 text-white px-6 py-2 rounded-xl hover:bg-green-700 transition font-bold shadow-sm" style="display: none;">
+            <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            新增頁面
+        </button>
         <span id="user-email-display" class="text-xs text-slate-500 self-center hidden"></span>
         <button type="button" onclick="handleLogout()"
                 class="bg-white border border-slate-300 text-slate-600 px-4 py-2 rounded-xl hover:bg-slate-50 transition font-bold shadow-sm">
@@ -225,7 +255,12 @@
     </div>
 
     <div id="masterContainer">
-        <div class="print-container">
+        <div class="print-container" style="position: relative;">
+            <div class="container-actions">
+                <button type="button" class="btn-remove" onclick="removePage(this)" title="刪除此頁面">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
+            </div>
             <!-- 左側聯絡單 -->
             <div class="a4-half-page" id="page-left">
 
@@ -349,7 +384,12 @@
             </div>
         </div>
 
-        <div class="print-container">
+        <div class="print-container" style="position: relative;">
+            <div class="container-actions">
+                <button type="button" class="btn-remove" onclick="removePage(this)" title="刪除此頁面">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
+            </div>
             <!-- 左側聯絡單 (p3) -->
             <div class="a4-half-page" id="page-left-2">
 
@@ -473,7 +513,12 @@
             </div>
         </div>
 
-        <div class="print-container">
+        <div class="print-container" style="position: relative;">
+            <div class="container-actions">
+                <button type="button" class="btn-remove" onclick="removePage(this)" title="刪除此頁面">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
+            </div>
             <!-- 左側聯絡單 (p5) -->
             <div class="a4-half-page" id="page-left-3">
 
@@ -597,7 +642,12 @@
             </div>
         </div>
 
-        <div class="print-container">
+        <div class="print-container" style="position: relative;">
+            <div class="container-actions">
+                <button type="button" class="btn-remove" onclick="removePage(this)" title="刪除此頁面">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
+            </div>
             <!-- 左側聯絡單 (p7) -->
             <div class="a4-half-page" id="page-left-4">
 
@@ -721,7 +771,12 @@
             </div>
         </div>
 
-        <div class="print-container">
+        <div class="print-container" style="position: relative;">
+            <div class="container-actions">
+                <button type="button" class="btn-remove" onclick="removePage(this)" title="刪除此頁面">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
+            </div>
             <!-- 左側聯絡單 (p9) -->
             <div class="a4-half-page" id="page-left-5">
 
@@ -966,24 +1021,141 @@
           isEditMode = !isEditMode;
           const btn = document.getElementById('editToggle');
           const btnText = document.getElementById('btnText');
+          const addPageBtn = document.getElementById('addPageBtn');
           const fields = document.querySelectorAll('.editable-field');
-          const evenPrefixes = ['p2-', 'p4-', 'p6-', 'p8-', 'p10-'];
           if (isEditMode) {
             btn.classList.replace('bg-blue-600', 'bg-emerald-600');
             btnText.innerText = '完成編輯';
+            addPageBtn.style.display = '';
             document.body.classList.add('edit-mode');
             fields.forEach(f => {
               const key = f.getAttribute('data-key');
-              const isEven = evenPrefixes.some(prefix => key && key.startsWith(prefix));
-              if (key && !isEven) f.setAttribute('contenteditable', 'true');
+              if (key) {
+                const match = key.match(/p(\d+)-/);
+                if (match) {
+                  const pageNum = parseInt(match[1]);
+                  if (pageNum % 2 === 1) f.setAttribute('contenteditable', 'true');
+                }
+              }
             });
           } else {
             btn.classList.replace('bg-emerald-600', 'bg-blue-600');
             btnText.innerText = '開啟編輯模式';
+            addPageBtn.style.display = 'none';
             document.body.classList.remove('edit-mode');
             fields.forEach(f => f.setAttribute('contenteditable', 'false'));
             saveDraft();
           }
+        }
+
+        function getHighestPageNumber() {
+          const fields = document.querySelectorAll('.editable-field');
+          let highest = 1;
+          fields.forEach(f => {
+            const key = f.getAttribute('data-key');
+            if (key) {
+              const match = key.match(/p(\d+)-/);
+              if (match) highest = Math.max(highest, parseInt(match[1]));
+            }
+          });
+          return highest;
+        }
+
+        function addPage() {
+          const highest = getHighestPageNumber();
+          const newPageLeft = highest + 1;
+          const newPageRight = highest + 2;
+
+          const containers = document.querySelectorAll('.print-container');
+          const lastContainer = containers[containers.length - 1];
+          if (!lastContainer) return;
+
+          const newContainer = lastContainer.cloneNode(true);
+          const masterContainer = document.getElementById('masterContainer');
+
+          const lastFields = lastContainer.querySelectorAll('.editable-field');
+          let lastOddPage = null, lastEvenPage = null;
+
+          lastFields.forEach(field => {
+            const key = field.getAttribute('data-key');
+            if (key) {
+              const match = key.match(/p(\d+)-/);
+              if (match) {
+                const pageNum = parseInt(match[1]);
+                if (pageNum % 2 === 1) {
+                  if (!lastOddPage || pageNum > lastOddPage) lastOddPage = pageNum;
+                } else {
+                  if (!lastEvenPage || pageNum > lastEvenPage) lastEvenPage = pageNum;
+                }
+              }
+            }
+          });
+
+          const allFields = newContainer.querySelectorAll('.editable-field');
+          allFields.forEach(field => {
+            const oldKey = field.getAttribute('data-key');
+            if (oldKey) {
+              let newKey = oldKey;
+              if (lastOddPage && oldKey.startsWith(`p${lastOddPage}-`)) {
+                newKey = oldKey.replace(`p${lastOddPage}-`, `p${newPageLeft}-`);
+              } else if (lastEvenPage && oldKey.startsWith(`p${lastEvenPage}-`)) {
+                newKey = oldKey.replace(`p${lastEvenPage}-`, `p${newPageRight}-`);
+              }
+              field.setAttribute('data-key', newKey);
+              field.setAttribute('contenteditable', 'false');
+              if (isEditMode && newKey.startsWith(`p${newPageLeft}-`)) {
+                field.setAttribute('contenteditable', 'true');
+              }
+            }
+          });
+
+          masterContainer.appendChild(newContainer);
+          attachFieldListeners();
+          saveDraft();
+          showStatus(`新增第 ${newPageLeft}-${newPageRight} 頁`);
+        }
+
+        function removePage(button) {
+          const container = button.closest('.print-container');
+          if (!container) return;
+
+          const containers = document.querySelectorAll('.print-container');
+          if (containers.length <= 1) {
+            showStatus('至少需要保留一個頁面');
+            return;
+          }
+
+          if (confirm('確定要刪除此頁面？')) {
+            const fields = container.querySelectorAll('.editable-field');
+            const keysToRemove = [];
+            fields.forEach(f => {
+              const key = f.getAttribute('data-key');
+              if (key) keysToRemove.push(key);
+            });
+
+            container.remove();
+
+            const data = collectFieldData();
+            keysToRemove.forEach(key => delete data[key]);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
+            if (currentSession) {
+              syncToSupabase(data);
+            }
+            showStatus('頁面已刪除');
+          }
+        }
+
+        function attachFieldListeners() {
+          document.querySelectorAll('.editable-field').forEach(field => {
+            field.removeEventListener('blur', saveDraft);
+            field.removeEventListener('input', syncOddToEven);
+            field.addEventListener('blur', saveDraft);
+            const container = field.closest('[id^="page-left"]');
+            if (container) {
+              field.addEventListener('input', syncOddToEven);
+            }
+          });
         }
 
 
@@ -1000,7 +1172,23 @@
         }
 
         function syncOddToEven() {
-          [1, 3, 5, 7, 9].forEach(n => {
+          const allFields = document.querySelectorAll('.editable-field');
+          const oddPages = new Set();
+
+          allFields.forEach(field => {
+            const key = field.getAttribute('data-key');
+            if (key) {
+              const match = key.match(/p(\d+)-/);
+              if (match) {
+                const pageNum = parseInt(match[1]);
+                if (pageNum % 2 === 1) {
+                  oddPages.add(pageNum);
+                }
+              }
+            }
+          });
+
+          oddPages.forEach(n => {
             document.querySelectorAll(`[data-key^="p${n}-"]`).forEach(field => {
               const key = field.getAttribute('data-key');
               const evenKey = key.replace(`p${n}-`, `p${n+1}-`);
@@ -1011,13 +1199,7 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-          document.querySelectorAll('.editable-field').forEach(field => {
-            field.addEventListener('blur', saveDraft);
-            const container = field.closest('[id^="page-left"]');
-            if (container) {
-              field.addEventListener('input', syncOddToEven);
-            }
-          });
+          attachFieldListeners();
         });
     </script>
 </body>
