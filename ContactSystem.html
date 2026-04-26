@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S2A 聯絡單管理系統 - 自動暫存增強版</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        
+        :root {
+            --primary-blue: #1e40af;
+            --light-blue-bg: #f0f7ff;
+            --border-gray: #e2e8f0;
+            --text-main: #1e293b;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f1f5f9;
+            margin: 0;
+            padding: 0;
+            color: var(--text-main);
+        }
+
+        /* A4 橫向列印核心設定 */
+        @page {
+            size: A4 landscape;
+            margin: 0;
+        }
+
+        /* 橫向並排容器 */
+        .print-container {
+            width: 297mm;
+            height: 210mm;
+            margin: 10mm auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 兩欄並排 */
+            gap: 0;
+            background: #ccc; /* 預覽時顯示分界線 */
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            page-break-after: always;
+        }
+
+        .a4-half-page {
+            width: 148.5mm;
+            height: 210mm;
+            padding: 5mm 12mm;
+            background: white;
+            position: relative;
+            box-sizing: border-box;
+            overflow: hidden;
+            border-right: 1px dashed #eee; /* 裁切線提示 */
+        }
+
+        .a4-half-page:last-child {
+            border-right: none;
+        }
+
+        @media print {
+            body { background: none; padding: 0; margin: 0; }
+            .print-container { margin: 0; box-shadow: none; border: none; background: none; }
+            .no-print { display: none !important; }
+            .a4-half-page { border-right: 1px dashed #ddd; } /* 列印時保留微弱裁切線 */
+            [contenteditable="true"] { outline: none !important; background-color: transparent !important; }
+        }
+
+        /* 內容樣式 */
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-bottom: 2px solid var(--primary-blue);
+            padding-bottom: 6px;
+            margin-bottom: 12px;
+        }
+
+        .header-title {
+            font-size: 14pt;
+            font-weight: 800;
+            color: var(--primary-blue);
+        }
+
+        .header-date {
+            font-size: 11pt;
+            font-weight: 600;
+        }
+
+        .section-header {
+            background-color: var(--light-blue-bg);
+            border-radius: 4px;
+            padding: 4px 10px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+            color: var(--primary-blue);
+            font-weight: 700;
+            font-size: 10.5pt;
+        }
+
+        .content-box {
+            border: 1px solid var(--border-gray);
+            border-radius: 4px;
+            padding: 8px 12px;
+            margin-bottom: 12px;
+            line-height: 1.5;
+            font-size: 9.5pt;
+            min-height: 40px;
+            color: #334155;
+        }
+
+        /* 單字網格 */
+        .vocab-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            border: 0.5px solid var(--border-gray);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .vocab-item {
+            border: 0.5px solid var(--border-gray);
+            padding: 2px 2px;
+            text-align: center;
+            font-size: 16pt;
+            min-height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 編輯與按鈕控制 */
+        .edit-mode [contenteditable="true"] {
+            outline: 2px dashed #60a5fa;
+            background-color: #f8fafc;
+        }
+
+        .page-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: none;
+            gap: 8px;
+            z-index: 50;
+        }
+
+        .edit-mode .page-actions { display: flex; }
+
+        .btn-round {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .btn-add { background-color: #10b981; }
+
+        #statusMsg {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 50px;
+            background: rgba(15, 23, 42, 0.9);
+            color: white;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body class="pb-20">
+
+    <!-- 登入畫面（未認證時顯示） -->
+    <div id="auth-screen" style="display:none;"
+         class="min-h-screen bg-slate-100 flex items-center justify-center">
+      <div class="bg-white rounded-2xl shadow-lg p-10 w-full max-w-sm">
+        <h1 class="text-2xl font-bold text-blue-800 mb-2 text-center">S2A 聯絡單管理系統</h1>
+        <p class="text-slate-500 text-sm text-center mb-8">請登入以使用本系統</p>
+        <label class="block text-sm font-medium text-slate-700 mb-1">電子郵件</label>
+        <input id="auth-email" type="email" autocomplete="email"
+               class="w-full border border-slate-300 rounded-lg px-4 py-2 mb-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+               placeholder="teacher@school.edu.tw">
+        <label class="block text-sm font-medium text-slate-700 mb-1">密碼</label>
+        <input id="auth-password" type="password" autocomplete="current-password"
+               class="w-full border border-slate-300 rounded-lg px-4 py-2 mb-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+               placeholder="••••••••">
+        <div id="auth-error" class="text-red-500 text-xs mb-4 min-h-[1rem]"></div>
+        <button onclick="handleLogin()"
+                class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 rounded-xl transition mb-3">
+          登入
+        </button>
+        <button onclick="handleForgotPassword()"
+                class="w-full text-blue-600 text-sm hover:underline">
+          忘記密碼？
+        </button>
+      </div>
+    </div>
+
+    <div id="statusMsg">設定已套用</div>
+
+    <div id="app-screen" style="display:none;">
+    <!-- 頂部控制欄 -->
+    <div class="no-print sticky top-0 z-[100] bg-white/90 backdrop-blur-md border-b p-4 flex justify-center gap-4 flex-wrap">
+        <button type="button" onclick="handlePrint()" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-black transition font-bold flex items-center shadow-sm">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+            列印 PDF (橫向)
+        </button>
+        <button type="button" id="editToggle" onclick="toggleEditMode()" class="bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 transition font-bold shadow-sm">
+            <span id="btnText">開啟編輯模式</span>
+        </button>
+        <button type="button" onclick="clearDraft()" class="bg-white border border-red-200 text-red-600 px-4 py-2 rounded-xl hover:bg-red-50 transition font-bold shadow-sm">
+            清除暫存內容
+        </button>
+        <span id="user-email-display" class="text-xs text-slate-500 self-center hidden"></span>
+        <button type="button" onclick="handleLogout()"
+                class="bg-white border border-slate-300 text-slate-600 px-4 py-2 rounded-xl hover:bg-slate-50 transition font-bold shadow-sm">
+          登出
+        </button>
+    </div>
+
+    <div id="masterContainer">
+        <div class="print-container">
+            <!-- 左側聯絡單 -->
+            <div class="a4-half-page" id="page-left">
+                <div class="page-actions no-print">
+                    <button type="button" class="btn-round btn-add action-clone" title="複製此份內容至右側">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+                    </button>
+                </div>
+
+                <div class="header-section">
+                    <div class="header-title">S2A 班級聯絡單</div>
+                    <div class="header-date">日期：<span class="editable-field" data-key="p1-date" contenteditable="false">2026/04/16</span></div>
+                </div>
+
+                <div class="section-header">☆ Weekly’s Lesson (本週上課內容)</div>
+                <div class="content-box">
+                    <div class="editable-field" data-key="p1-lesson" contenteditable="false">
+                        ☆Compass Reading :Topic 1 p.20-23<br>
+                        ☆Compass Writing :Topic 7 p.84-85<br>
+                        ☆Grammar Zone2: Lesson 2<br>
+                        ☆Step By Step Listening: Unit 10
+                    </div>
+                </div>
+
+                <div class="section-header">▲ Today’s Homework (回家功課)</div>
+                <div class="content-box">
+                    <div class="editable-field" data-key="p1-homework" contenteditable="false">
+                        ▲閱讀Compass Reading : p. 20-23<br>
+                        ▲熟記下方單字<br>
+                        ▲作業本- Grammar Review
+                    </div>
+                </div>
+
+                <div class="section-header">★ Communication matters (聯絡事項)</div>
+                <div class="content-box">
+                    <div class="editable-field" data-key="p1-comm" contenteditable="false">
+                        ★本學期有「說故事比賽」，請孩子在家也要練習自己選的故事，五月初將有說故事比賽的班內賽，每個人都要到前方說自己選的故事喲！上週已發給孩子紙本故事，並會利用學校APP把故事及錄音檔給家長。<br><br>
+                        ★本學期有「教學觀摩」，學校之後會在APP的園訊公佈時間，Kim也會再提醒您。<br><br>
+                        ★下週三(3/18)開始有英文有聲故事書借閱，本學期共有五次借閱。
+                    </div>
+                </div>
+
+                <div class="section-header">🔡 Vocabulary Focus</div>
+                <div class="vocab-grid">
+                    <div class="vocab-item editable-field" data-key="p1-v1" contenteditable="false">leaving</div>
+                    <div class="vocab-item editable-field" data-key="p1-v2" contenteditable="false">feel</div>
+                    <div class="vocab-item editable-field" data-key="p1-v3" contenteditable="false">stop</div>
+                    <div class="vocab-item editable-field" data-key="p1-v4" contenteditable="false">hear</div>
+                    <div class="vocab-item editable-field" data-key="p1-v5" contenteditable="false">classroom</div>
+                    <div class="vocab-item editable-field" data-key="p1-v6" contenteditable="false">student</div>
+                    <div class="vocab-item editable-field" data-key="p1-v7" contenteditable="false">crying</div>
+                    <div class="vocab-item editable-field" data-key="p1-v8" contenteditable="false">speak</div>
+                    <div class="vocab-item editable-field" data-key="p1-v9" contenteditable="false">shout</div>
+                    <div class="vocab-item editable-field" data-key="p1-v10" contenteditable="false">many</div>
+                    <div class="vocab-item editable-field" data-key="p1-v11" contenteditable="false">talk</div>
+                    <div class="vocab-item editable-field" data-key="p1-v12" contenteditable="false">Chinese</div>
+                    <div class="vocab-item editable-field" data-key="p1-v13" contenteditable="false">walk</div>
+                    <div class="vocab-item editable-field" data-key="p1-v14" contenteditable="false">eleven</div>
+                    <div class="vocab-item editable-field" data-key="p1-v15" contenteditable="false">wrong</div>
+                    <div class="vocab-item editable-field" data-key="p1-v16" contenteditable="false">beautiful</div>
+                    <div class="vocab-item editable-field" data-key="p1-v17" contenteditable="false">desk</div>
+                    <div class="vocab-item editable-field" data-key="p1-v18" contenteditable="false">twelve</div>
+                    <div class="vocab-item editable-field" data-key="p1-v19" contenteditable="false">nice</div>
+                    <div class="vocab-item editable-field" data-key="p1-v20" contenteditable="false">pretty</div>
+                </div>
+            </div>
+
+            <!-- 右側聯絡單 -->
+            <div class="a4-half-page" id="page-right">
+                <div class="page-actions no-print">
+                    <button type="button" class="btn-round btn-add action-clone" title="複製左側內容至右側">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+                    </button>
+                </div>
+
+                <div class="header-section">
+                    <div class="header-title">S2A 班級聯絡單</div>
+                    <div class="header-date">日期：<span class="editable-field" data-key="p2-date" contenteditable="false">2026/04/17</span></div>
+                </div>
+
+                <div class="section-header">☆ Weekly’s Lesson (本週上課內容)</div>
+                <div class="content-box">
+                    <div class="editable-field" data-key="p2-lesson" contenteditable="false">
+                        ☆Compass Reading :Topic 1 p.20-23<br>
+                        ☆Compass Writing :Topic 7 p.84-85<br>
+                        ☆Grammar Zone2: Lesson 2<br>
+                        ☆Step By Step Listening: Unit 10
+                    </div>
+                </div>
+
+                <div class="section-header">▲ Today’s Homework (回家功課)</div>
+                <div class="content-box">
+                    <div class="editable-field" data-key="p2-homework" contenteditable="false">
+                        ▲閱讀Compass Reading : p. 20-23<br>
+                        ▲熟記下方單字<br>
+                        ▲作業本- Grammar Review
+                    </div>
+                </div>
+
+                <div class="section-header">★ Communication matters (聯絡事項)</div>
+                <div class="content-box">
+                    <div class="editable-field" data-key="p2-comm" contenteditable="false">
+                        ★本學期有「說故事比賽」，請孩子在家也要練習自己選的故事，五月初將有說故事比賽的班內賽，每個人都要到前方說自己選的故事喲！上週已發給孩子紙本故事，並會利用學校APP把故事及錄音檔給家長。<br><br>
+                        ★本學期有「教學觀摩」，學校之後會在APP的園訊公佈時間，Kim也會再提醒您。<br><br>
+                        ★下週三(3/18)開始有英文有聲故事書借閱，本學期共有五次借閱。
+                    </div>
+                </div>
+
+                <div class="section-header">🔡 Vocabulary Focus</div>
+                <div class="vocab-grid">
+                    <div class="vocab-item editable-field" data-key="p2-v1" contenteditable="false">leaving</div>
+                    <div class="vocab-item editable-field" data-key="p2-v2" contenteditable="false">feel</div>
+                    <div class="vocab-item editable-field" data-key="p2-v3" contenteditable="false">stop</div>
+                    <div class="vocab-item editable-field" data-key="p2-v4" contenteditable="false">hear</div>
+                    <div class="vocab-item editable-field" data-key="p2-v5" contenteditable="false">classroom</div>
+                    <div class="vocab-item editable-field" data-key="p2-v6" contenteditable="false">student</div>
+                    <div class="vocab-item editable-field" data-key="p2-v7" contenteditable="false">crying</div>
+                    <div class="vocab-item editable-field" data-key="p2-v8" contenteditable="false">speak</div>
+                    <div class="vocab-item editable-field" data-key="p2-v9" contenteditable="false">shout</div>
+                    <div class="vocab-item editable-field" data-key="p2-v10" contenteditable="false">many</div>
+                    <div class="vocab-item editable-field" data-key="p2-v11" contenteditable="false">talk</div>
+                    <div class="vocab-item editable-field" data-key="p2-v12" contenteditable="false">Chinese</div>
+                    <div class="vocab-item editable-field" data-key="p2-v13" contenteditable="false">walk</div>
+                    <div class="vocab-item editable-field" data-key="p2-v14" contenteditable="false">eleven</div>
+                    <div class="vocab-item editable-field" data-key="p2-v15" contenteditable="false">wrong</div>
+                    <div class="vocab-item editable-field" data-key="p2-v16" contenteditable="false">beautiful</div>
+                    <div class="vocab-item editable-field" data-key="p2-v17" contenteditable="false">desk</div>
+                    <div class="vocab-item editable-field" data-key="p2-v18" contenteditable="false">twelve</div>
+                    <div class="vocab-item editable-field" data-key="p2-v19" contenteditable="false">nice</div>
+                    <div class="vocab-item editable-field" data-key="p2-v20" contenteditable="false">pretty</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://ozbxqvfdjdjudflgmvdz.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im96YnhxdmZkamRqdWRmbGdtdmR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NDMxOTUsImV4cCI6MjA5MjUxOTE5NX0.JpZHpxYIUojHUSlLAVL1rVv7-D9kyZpzQzA6JXiSRuk';
+        const { createClient } = supabase;
+        const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let currentSession = null;
+        let isEditMode = false;
+        let syncTimer = null;
+        const STORAGE_KEY = 's2_contact_draft';
+
+        db.auth.onAuthStateChange((event, session) => {
+          if (event === 'PASSWORD_RECOVERY') {
+            const newPassword = prompt('請設定您的新密碼（至少8字元）：');
+            if (newPassword) {
+              db.auth.updateUser({ password: newPassword }).then(({ error }) => {
+                if (error) alert('密碼設定失敗：' + error.message);
+                else alert('密碼已設定，請重新登入。');
+              });
+            }
+            return;
+          }
+          currentSession = session;
+          if (session) { showApp(session.user); loadFromSupabase(); }
+          else { showLogin(); }
+        });
+
+        function showLogin() {
+          document.getElementById('auth-screen').style.display = 'flex';
+          document.getElementById('app-screen').style.display = 'none';
+        }
+
+        function showApp(user) {
+          document.getElementById('auth-screen').style.display = 'none';
+          document.getElementById('app-screen').style.display = 'block';
+          const badge = document.getElementById('user-email-display');
+          if (badge) { badge.textContent = user.email; badge.classList.remove('hidden'); }
+        }
+
+        async function handleLogin() {
+          const email = document.getElementById('auth-email').value.trim();
+          const password = document.getElementById('auth-password').value;
+          const errEl = document.getElementById('auth-error');
+          errEl.textContent = '';
+          errEl.style.color = '#ef4444';
+          if (!email || !password) { errEl.textContent = '請輸入電子郵件和密碼'; return; }
+          const { error } = await db.auth.signInWithPassword({ email, password });
+          if (error) { errEl.textContent = '登入失敗：帳號或密碼錯誤'; }
+        }
+
+        async function handleLogout() {
+          if (!confirm('確定要登出嗎？')) return;
+          clearTimeout(syncTimer);
+          localStorage.removeItem(STORAGE_KEY);
+          await db.auth.signOut();
+        }
+
+        async function handleForgotPassword() {
+          const email = document.getElementById('auth-email').value.trim();
+          const errEl = document.getElementById('auth-error');
+          if (!email) { errEl.textContent = '請先填寫電子郵件'; return; }
+          const { error } = await db.auth.resetPasswordForEmail(email);
+          if (error) { errEl.textContent = '寄送失敗，請確認電子郵件是否正確'; }
+          else { errEl.style.color = '#16a34a'; errEl.textContent = '已寄出密碼重設信，請查收'; }
+        }
+
+        function collectFieldData() {
+          const data = {};
+          document.querySelectorAll('.editable-field').forEach(field => {
+            const key = field.getAttribute('data-key');
+            if (key) data[key] = field.innerHTML;
+          });
+          return data;
+        }
+
+        function applyDraftData(data) {
+          document.querySelectorAll('.editable-field').forEach(field => {
+            const key = field.getAttribute('data-key');
+            if (key && data[key] !== undefined) field.innerHTML = data[key];
+          });
+        }
+
+        function saveDraft() {
+          const data = collectFieldData();
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+          if (currentSession) {
+            clearTimeout(syncTimer);
+            syncTimer = setTimeout(() => syncToSupabase(data), 1500);
+          }
+        }
+
+        async function syncToSupabase(data) {
+          const { error } = await db.from('contact_drafts').upsert(
+            { user_id: currentSession.user.id, draft_data: data },
+            { onConflict: 'user_id' }
+          );
+          if (error) { showStatus('雲端同步失敗，內容已暫存於本地'); console.error(error); }
+          else { showStatus('已同步至雲端 ✓'); }
+        }
+
+        async function loadFromSupabase() {
+          const { data, error } = await db.from('contact_drafts')
+            .select('draft_data').eq('user_id', currentSession.user.id).maybeSingle();
+          if (!error && data?.draft_data && Object.keys(data.draft_data).length > 0) {
+            applyDraftData(data.draft_data);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data.draft_data));
+            showStatus('已從雲端載入上次內容');
+          } else {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) { try { applyDraftData(JSON.parse(saved)); showStatus('已回復本地暫存內容'); } catch(e) {} }
+          }
+        }
+
+        async function clearDraft() {
+          if (!confirm('確定要清除所有暫存編輯內容並重置嗎？此動作無法復原。')) return;
+          localStorage.removeItem(STORAGE_KEY);
+          if (currentSession) {
+            await db.from('contact_drafts').upsert(
+              { user_id: currentSession.user.id, draft_data: {} },
+              { onConflict: 'user_id' }
+            );
+          }
+          location.reload();
+        }
+
+        function toggleEditMode() {
+          isEditMode = !isEditMode;
+          const btn = document.getElementById('editToggle');
+          const btnText = document.getElementById('btnText');
+          const fields = document.querySelectorAll('.editable-field');
+          if (isEditMode) {
+            btn.classList.replace('bg-blue-600', 'bg-emerald-600');
+            btnText.innerText = '完成編輯';
+            document.body.classList.add('edit-mode');
+            fields.forEach(f => f.setAttribute('contenteditable', 'true'));
+          } else {
+            btn.classList.replace('bg-emerald-600', 'bg-blue-600');
+            btnText.innerText = '開啟編輯模式';
+            document.body.classList.remove('edit-mode');
+            fields.forEach(f => f.setAttribute('contenteditable', 'false'));
+            saveDraft();
+          }
+        }
+
+        document.addEventListener('click', function(e) {
+          if (e.target.closest('.action-clone')) {
+            const leftPage = document.getElementById('page-left');
+            const rightPage = document.getElementById('page-right');
+            if (leftPage && rightPage) {
+              leftPage.querySelectorAll('.editable-field').forEach(lf => {
+                const rKey = lf.getAttribute('data-key').replace('p1-', 'p2-');
+                const tf = rightPage.querySelector(`[data-key="${rKey}"]`);
+                if (tf) tf.innerHTML = lf.innerHTML;
+              });
+              saveDraft();
+              showStatus('已同步內容至右側並儲存');
+            }
+          }
+        });
+
+        function showStatus(msg) {
+          const el = document.getElementById('statusMsg');
+          el.innerText = msg;
+          el.style.display = 'block';
+          setTimeout(() => { el.style.display = 'none'; }, 2500);
+        }
+
+        function handlePrint() {
+          if (isEditMode) toggleEditMode();
+          window.print();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+          document.querySelectorAll('.editable-field').forEach(field => {
+            field.addEventListener('blur', saveDraft);
+          });
+        });
+    </script>
+</body>
+</html>
