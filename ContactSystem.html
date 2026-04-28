@@ -1039,7 +1039,11 @@
           const data = {};
           document.querySelectorAll('.editable-field').forEach(field => {
             const key = field.getAttribute('data-key');
-            if (key) data[key] = field.innerHTML;
+            if (key) {
+              const html = field.innerHTML;
+              const text = html.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>/g, '');
+              data[key] = text;
+            }
           });
           return data;
         }
@@ -1047,7 +1051,9 @@
         function applyDraftData(data) {
           document.querySelectorAll('.editable-field').forEach(field => {
             const key = field.getAttribute('data-key');
-            if (key && data[key] !== undefined) field.innerHTML = data[key];
+            if (key && data[key] !== undefined) {
+              field.innerHTML = data[key].replace(/\n/g, '<br>');
+            }
           });
           syncOddToEven();
         }
@@ -1263,7 +1269,11 @@
               const key = field.getAttribute('data-key');
               const evenKey = key.replace(`p${n}-`, `p${n+1}-`);
               const evenField = document.querySelector(`[data-key="${evenKey}"]`);
-              if (evenField) evenField.innerHTML = field.innerHTML;
+              if (evenField) {
+                const html = field.innerHTML;
+                const text = html.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>/g, '');
+                evenField.innerHTML = text.replace(/\n/g, '<br>');
+              }
             });
           });
         }
@@ -1273,7 +1283,9 @@
           for (let i = 1; i <= 20; i++) {
             const field = document.querySelector(`[data-key="p1-v${i}"]`);
             if (field) {
-              vocabItems.push(field.innerHTML);
+              const html = field.innerHTML;
+              const text = html.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>/g, '');
+              vocabItems.push(text.replace(/\n/g, '<br>'));
             }
           }
 
